@@ -28,6 +28,9 @@ jobs:
       security-events: write
 
     steps:
+      # Fix HOME variable as GitHub is overriding it, and it breaks assumptions from maven.
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -35,7 +38,6 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: java
-
       - name: Cache maven dependencies
         uses: actions/cache@v3
         with:
