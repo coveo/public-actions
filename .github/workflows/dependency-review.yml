@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout scan target
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout licenses
         uses:  actions/checkout@v3
