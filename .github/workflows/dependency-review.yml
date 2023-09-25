@@ -12,10 +12,10 @@ on:
         type: boolean
         default: true
       comment-summary-in-pr:
-        description: A boolean to determine if the report should be posted as a comment in the PR itself.
+        description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
         required: false
-        type: boolean
-        default: true
+        default: on-failure
+        type: string
 
 jobs:
   dependency-review:
