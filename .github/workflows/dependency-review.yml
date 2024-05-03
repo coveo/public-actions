@@ -16,6 +16,16 @@ on:
         required: false
         default: on-failure
         type: string
+      base-ref:
+        description: Provide custom git references for the git base
+        required: false
+        default: ${{ github.event.pull_request.base.sha }}
+        type: string
+      head-ref:
+        description: Provide custom git references for the git head
+        required: false
+        default: ${{ github.event.pull_request.head.sha }}
+        type: string
 
 jobs:
   dependency-review:
@@ -58,5 +68,5 @@ jobs:
           comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
           fail-on-severity: high
           config-file: ./coveo-dependency-allowed-licenses/${{ steps.select-config.outputs.result }}
-          base-ref: ${{ github.event.pull_request.base.sha || 'main' }}
-          head-ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          base-ref: ${{ inputs.base-ref }}
+          head-ref: ${{ inputs.head-ref }}
