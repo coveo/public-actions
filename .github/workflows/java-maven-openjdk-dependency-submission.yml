@@ -24,6 +24,14 @@ on:
           The JDK version to use for the build.
         required: true
         type: number
+      mvn-additional-arguments:
+        description: |
+          The additional arguments to pass to the Maven invocation. You can use this to specify a custom profile for example.
+
+          If you wish to exclude certain modules from the scan, pass: -Dexcludes=groupId:artifactId:type:classifier
+
+        required: false
+        type: string
 
 jobs:
   submit-dependencies:
@@ -55,4 +63,4 @@ jobs:
         uses: advanced-security/maven-dependency-submission-action@v4
         with:
           directory: ${{ inputs.directory }}
-          maven-args: -Dscopes=compile,provided,runtime,system
+          maven-args: ${{ inputs.mvn-additional-arguments }} -Dscopes=compile,provided,runtime,system
