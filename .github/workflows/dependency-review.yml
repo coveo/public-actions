@@ -51,6 +51,7 @@ jobs:
         with:
           repository: coveo/dependency-allowed-licenses
           path: coveo-dependency-allowed-licenses
+          ref: no-permutation
 
       - name: Select configuration
         id: select-config
