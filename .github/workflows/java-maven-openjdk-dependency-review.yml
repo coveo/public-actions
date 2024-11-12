@@ -89,16 +89,9 @@ jobs:
               owner: owner,
               repo: repo
             });
-
-            # For debugging purposes
             console.log(`Repository properties: ${JSON.stringify(response.data)}`);
-
             const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
-
-            # Default to True if the property is not found
             const distributedValue = distributedProperty ? distributedProperty.value : 'true';
-
-            # To be used in the dependency-review job
             core.setOutput('is_distributed', distributedValue);
 
             const repoDetails = await github.request('GET /repos/{owner}/{repo}', {
@@ -106,11 +99,7 @@ jobs:
               repo: repo
             });
             const isPublic = repoDetails.data.private ? 'false' : 'true';
-
-            # For debugging purposes
             console.log(`Is this a public repo? ${isPublic}`);
-
-            # To be used in the dependency-review job
             core.setOutput('is_public', isPublic);
 
   validate-outputs:
