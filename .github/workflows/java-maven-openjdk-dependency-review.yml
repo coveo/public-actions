@@ -84,14 +84,21 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+
             const response = await github.request('GET /repos/{owner}/{repo}/properties/values', {
               owner: owner,
               repo: repo
             });
-            console.log(response.data);
+
+            # For debugging purposes
+            console.log(`Repository properties: ${JSON.stringify(response.data)}`);
 
             const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
+
+            # Default to True if the property is not found
             const distributedValue = distributedProperty ? distributedProperty.value : 'true';
+
+            # To be used in the dependency-review job
             core.setOutput('is_distributed', distributedValue);
 
             const repoDetails = await github.request('GET /repos/{owner}/{repo}', {
@@ -99,8 +106,26 @@ jobs:
               repo: repo
             });
             const isPublic = repoDetails.data.private ? 'false' : 'true';
-            core.setOutput('is_public', isPublic);
+
+            # For debugging purposes
             console.log(`Is this a public repo? ${isPublic}`);
+
+            # To be used in the dependency-review job
+            core.setOutput('is_public', isPublic);
+
+  validate-outputs:
+    needs: get-repository-properties
+    name: Validate Outputs
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Validate Outputs
+        run: |
+          echo "Is Distributed: ${{ needs.get-repository-properties.outputs.is_distributed }}"
+          echo "Is Public: ${{ needs.get-repository-properties.outputs.is_public }}"
 
   submit-dependencies:
     needs: get-repository-properties
