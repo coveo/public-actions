@@ -46,6 +46,10 @@ on:
         required: false
         type: number
         default: 120
+      warn-on-openssf-scorecard-level:
+        description: Numeric threshold for the OpenSSF Scorecard score. If the score is below this threshold, the action will warn you.
+        required: false
+        default: 3
 
 jobs:
   dependency-review:
@@ -92,3 +96,4 @@ jobs:
           head-ref: ${{ inputs.head-ref }}
           retry-on-snapshot-warnings: ${{ inputs.retry-on-snapshot-warnings }}
           retry-on-snapshot-warnings-timeout: ${{ inputs.retry-on-snapshot-warnings-timeout }}
+          warn-on-openssf-scorecard-level: ${{ inputs.warn-on-openssf-scorecard-level }}

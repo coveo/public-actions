@@ -1,0 +1,139 @@
+name: 'Maven Dependency Review'
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: |
+          The type of machine to run the job on. Must be provided as a stringified list (e.g. `runs-on: '["ubuntu-latest","self-hosted"]'`)
+        required: true
+        type: string
+
+      # Dependency Submission inputs
+      directory:
+        description: 'The directory that contains the pom.xml that will be used to generate the dependency graph from'
+        default: '.'
+        required: false
+        type: string
+      mvn-version:
+        description: |
+          The Maven version used for the execution. You can specify minor or patch version (3.9 or 3.9.1). Default : 3.9
+        required: false
+        type: number
+        default: 3.9
+      jdk-version:
+        description: |
+          The JDK version to use for the build.
+        required: true
+        type: number
+      mvn-additional-arguments:
+        description: |
+          The additional arguments to pass to the Maven invocation. You can use this to specify a custom profile for example.
+
+          If you wish to exclude certain modules from the scan, pass: -Dexcludes=groupId:artifactId:type:classifier
+
+        required: false
+        type: string
+
+      # Dependency Reviewer inputs
+      public:
+        required: true
+        type: boolean
+        default: false
+      distributed:
+        required: true
+        type: boolean
+        default: true
+      comment-summary-in-pr:
+        description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
+        required: false
+        default: on-failure
+        type: string
+      base-ref:
+        description: Provide custom git references for the git base
+        required: false
+        default: ${{ github.event.pull_request.base.sha }}
+        type: string
+      head-ref:
+        description: Provide custom git references for the git head
+        required: false
+        default: ${{ github.event.pull_request.head.sha }}
+        type: string
+      fail-on-severity:
+        description: Defines the threshold for the level of severity. The action will fail on any pull requests that introduce vulnerabilities of the specified severity level or higher.
+        required: false
+        default: high
+        type: string
+      retry-on-snapshot-warnings:
+        description: Whether to retry on snapshot warnings (to be used for projects where a dependency submission Action is used)
+        required: false
+        type: boolean
+        default: false
+      retry-on-snapshot-warnings-timeout:
+        description: Number of seconds to wait before stopping snapshot retries.
+        required: false
+        type: number
+        default: 120
+      warn-on-openssf-scorecard-level:
+        description: Numeric threshold for the OpenSSF Scorecard score. If the score is below this threshold, the action will warn you.
+        required: false
+        default: 3
+
+permissions: { }
+
+jobs:
+  call-api:
+    name: Call GitHub API
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Call GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const response = await github.request('GET /repos/{owner}/{repo}/properties/values', {
+              owner: owner,
+              repo: repo
+            });
+            console.log(response.data);
+
+  submit-dependencies:
+    needs: call-api
+    name: Submit dependencies
+    uses: coveo/public-actions/.github/workflows/java-maven-openjdk-dependency-submission.yml@main
+
+    permissions:
+      contents: write
+
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      directory: ${{ inputs.directory }}
+      mvn-version: ${{ inputs.mvn-version }}
+      jdk-version: ${{ inputs.jdk-version }}
+      mvn-additional-arguments: ${{ inputs.mvn-additional-arguments }}
+
+  dependency-review:
+    needs: submit-dependencies
+    name: Dependency Review
+    uses: coveo/public-actions/.github/workflows/dependency-review.yml@main
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      public: ${{ inputs.public }}
+      distributed: ${{ inputs.distributed }}
+      comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
+      base-ref: ${{ inputs.base-ref }}
+      head-ref: ${{ inputs.head-ref }}
+      fail-on-severity: ${{ inputs.fail-on-severity }}
+      retry-on-snapshot-warnings: ${{ inputs.retry-on-snapshot-warnings }}
+      retry-on-snapshot-warnings-timeout: ${{ inputs.retry-on-snapshot-warnings-timeout }}
+      warn-on-openssf-scorecard-level: ${{ inputs.warn-on-openssf-scorecard-level }}
