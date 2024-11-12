@@ -36,14 +36,6 @@ on:
         type: string
 
       # Dependency Reviewer inputs
-      public:
-        required: true
-        type: boolean
-        default: false
-      distributed:
-        required: true
-        type: boolean
-        default: true
       comment-summary-in-pr:
         description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
         required: false
@@ -73,20 +65,21 @@ on:
 permissions: { }
 
 jobs:
-  call-api:
-    name: Call GitHub API
+  get-repository-properties:
+    name: Get Properties
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
     outputs:
-      is_distributed: ${{ steps.set-distributed.outputs.is_distributed }}
-      is_public: ${{ steps.set-distributed.outputs.is_public }}
+      is_distributed: ${{ steps.get-properties.outputs.is_distributed }}
+      is_public: ${{ steps.get-properties.outputs.is_public }}
 
     steps:
-      - name: Call GitHub API
+      - name: Get Properties
         uses: actions/github-script@v7
+        id: get-properties
         with:
           script: |
             const owner = context.repo.owner;
@@ -110,7 +103,7 @@ jobs:
             console.log(`Is this a public repo? ${isPublic}`);
 
   submit-dependencies:
-    needs: call-api
+    needs: get-repository-properties
     name: Submit dependencies
     uses: ./.github/workflows/java-maven-openjdk-dependency-submission.yml
 
@@ -135,8 +128,8 @@ jobs:
 
     with:
       runs-on: ${{ inputs.runs-on }}
-      public: ${{ inputs.public }}
-      distributed: ${{ inputs.distributed }}
+      public: ${{ needs.get-repository-properties.outputs.is_public }}
+      distributed: ${{needs.get-repository-properties.outputs.is_distributed }}
       comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
       base-ref: ${{ inputs.base-ref }}
       head-ref: ${{ inputs.head-ref }}
