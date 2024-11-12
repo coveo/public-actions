@@ -64,16 +64,6 @@ on:
         required: false
         default: high
         type: string
-      retry-on-snapshot-warnings:
-        description: Whether to retry on snapshot warnings (to be used for projects where a dependency submission Action is used)
-        required: false
-        type: boolean
-        default: false
-      retry-on-snapshot-warnings-timeout:
-        description: Number of seconds to wait before stopping snapshot retries.
-        required: false
-        type: number
-        default: 120
       warn-on-openssf-scorecard-level:
         description: Numeric threshold for the OpenSSF Scorecard score. If the score is below this threshold, the action will warn you.
         required: false
@@ -85,10 +75,14 @@ permissions: { }
 jobs:
   call-api:
     name: Call GitHub API
-    runs-on: ${{ fromJson(inputs.runs-on) }}
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
+
+    outputs:
+      is_distributed: ${{ steps.set-distributed.outputs.is_distributed }}
+      is_public: ${{ steps.set-distributed.outputs.is_public }}
 
     steps:
       - name: Call GitHub API
@@ -102,6 +96,18 @@ jobs:
               repo: repo
             });
             console.log(response.data);
+
+            const distributedProperty = response.data.find(prop => prop.property_name === 'Distributed');
+            const distributedValue = distributedProperty ? distributedProperty.value : 'false';
+            core.setOutput('is_distributed', distributedValue);
+
+            const repoDetails = await github.request('GET /repos/{owner}/{repo}', {
+              owner: owner,
+              repo: repo
+            });
+            const isPublic = repoDetails.data.private ? 'false' : 'true';
+            core.setOutput('is_public', isPublic);
+            console.log(`Is this a public repo? ${isPublic}`);
 
   submit-dependencies:
     needs: call-api
@@ -135,6 +141,6 @@ jobs:
       base-ref: ${{ inputs.base-ref }}
       head-ref: ${{ inputs.head-ref }}
       fail-on-severity: ${{ inputs.fail-on-severity }}
-      retry-on-snapshot-warnings: ${{ inputs.retry-on-snapshot-warnings }}
-      retry-on-snapshot-warnings-timeout: ${{ inputs.retry-on-snapshot-warnings-timeout }}
+      retry-on-snapshot-warnings: true
+      retry-on-snapshot-warnings-timeout: 120
       warn-on-openssf-scorecard-level: ${{ inputs.warn-on-openssf-scorecard-level }}
