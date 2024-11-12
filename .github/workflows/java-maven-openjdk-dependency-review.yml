@@ -91,14 +91,14 @@ jobs:
             });
             console.log(`Repository properties: ${JSON.stringify(response.data, null, 2)}`);
             const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
-            const distributedValue = distributedProperty ? distributedProperty.value : 'true';
+            const distributedValue = distributedProperty ? distributedProperty.value : true;
             core.setOutput('is_distributed', distributedValue);
 
             const repoDetails = await github.request('GET /repos/{owner}/{repo}', {
               owner: owner,
               repo: repo
             });
-            const isPublic = repoDetails.data.private ? 'false' : 'true';
+            const isPublic = repoDetails.data.private ? false : true;
             console.log(`Is this a public repo? ${isPublic}`);
             core.setOutput('is_public', isPublic);
 
