@@ -21,3 +21,18 @@ jobs:
       distributed: ${{ matrix.distributed }}
       comment-summary-in-pr: ${{ matrix.comment-summary-in-pr }}
       runs-on: '["ubuntu-latest"]'
+
+  test_v2:
+    strategy:
+      matrix:
+        public: [true, false]
+        distributed: [true, false]
+        comment-summary-in-pr: [true, false]
+      fail-fast: false
+
+    uses: ./.github/workflows/dependency-review-v2.yml
+    with:
+      public: ${{ matrix.public }}
+      distributed: ${{ matrix.distributed }}
+      comment-summary-in-pr: ${{ matrix.comment-summary-in-pr }}
+      runs-on: '["ubuntu-latest"]'
