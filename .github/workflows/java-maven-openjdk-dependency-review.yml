@@ -121,7 +121,7 @@ jobs:
   dependency-review:
     needs: submit-dependencies
     name: Dependency Review
-    uses: coveo/public-actions/.github/workflows/dependency-review.yml@main
+    uses: coveo/public-actions/.github/workflows/dependency-review.yml@feature/DEF-3582-java-dep-review
 
     permissions:
       contents: read
