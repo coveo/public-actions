@@ -25,14 +25,12 @@ jobs:
   test_v2:
     strategy:
       matrix:
-        public: [true, false]
-        distributed: [true, false]
+        warn-on-openssf-scorecard-level: [5, 8]
         comment-summary-in-pr: [true, false]
       fail-fast: false
 
     uses: ./.github/workflows/dependency-review-v2.yml
     with:
-      public: ${{ matrix.public }}
-      distributed: ${{ matrix.distributed }}
+      warn-on-openssf-scorecard-level: ${{ matrix.warn-on-openssf-scorecard-level }}
       comment-summary-in-pr: ${{ matrix.comment-summary-in-pr }}
       runs-on: '["ubuntu-latest"]'
