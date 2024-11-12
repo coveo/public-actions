@@ -89,7 +89,7 @@ jobs:
               owner: owner,
               repo: repo
             });
-            console.log(response.data);
+            console.log(`Repository properties: ${JSON.stringify(response.data)}`);
             const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
             const distributedValue = distributedProperty ? distributedProperty.value : 'true';
             core.setOutput('is_distributed', distributedValue);
