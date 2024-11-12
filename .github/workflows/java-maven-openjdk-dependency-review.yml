@@ -77,6 +77,7 @@ on:
       warn-on-openssf-scorecard-level:
         description: Numeric threshold for the OpenSSF Scorecard score. If the score is below this threshold, the action will warn you.
         required: false
+        type: number
         default: 3
 
 permissions: { }
