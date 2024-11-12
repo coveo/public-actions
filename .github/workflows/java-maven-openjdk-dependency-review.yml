@@ -106,7 +106,7 @@ jobs:
   submit-dependencies:
     needs: call-api
     name: Submit dependencies
-    uses: coveo/public-actions/.github/workflows/java-maven-openjdk-dependency-submission.yml@main
+    uses: ./.github/workflows/java-maven-openjdk-dependency-submission.yml
 
     permissions:
       contents: write
@@ -121,7 +121,7 @@ jobs:
   dependency-review:
     needs: submit-dependencies
     name: Dependency Review
-    uses: coveo/public-actions/.github/workflows/dependency-review.yml@feature/DEF-3582-java-dep-review
+    uses: ./.github/workflows/dependency-review.yml
 
     permissions:
       contents: read
