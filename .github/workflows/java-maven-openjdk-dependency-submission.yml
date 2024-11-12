@@ -43,9 +43,7 @@ jobs:
       image: maven:${{ inputs.mvn-version }}-eclipse-temurin-${{ inputs.jdk-version }}
 
     permissions:
-      actions: read
       contents: write
-      security-events: write
 
     steps:
       - name: Checkout repository

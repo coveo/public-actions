@@ -109,9 +109,7 @@ jobs:
     uses: coveo/public-actions/.github/workflows/java-maven-openjdk-dependency-submission.yml@main
 
     permissions:
-      actions: read
       contents: write
-      security-events: write
 
     with:
       runs-on: ${{ inputs.runs-on }}
