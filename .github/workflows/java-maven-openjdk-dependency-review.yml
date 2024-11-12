@@ -118,7 +118,10 @@ jobs:
       mvn-additional-arguments: ${{ inputs.mvn-additional-arguments }}
 
   dependency-review:
-    needs: submit-dependencies
+    needs:
+      - get-repository-properties
+      - submit-dependencies
+
     name: Dependency Review
     uses: ./.github/workflows/dependency-review.yml
 
