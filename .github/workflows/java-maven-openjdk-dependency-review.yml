@@ -85,7 +85,7 @@ permissions: { }
 jobs:
   call-api:
     name: Call GitHub API
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJson(inputs.runs-on) }}
 
     permissions:
       contents: read
