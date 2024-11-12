@@ -89,7 +89,7 @@ jobs:
               owner: owner,
               repo: repo
             });
-            console.log(`Repository properties: ${JSON.stringify(response.data)}`);
+            console.log(`Repository properties: ${JSON.stringify(response.data, null, 2)}`);
             const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
             const distributedValue = distributedProperty ? distributedProperty.value : 'true';
             core.setOutput('is_distributed', distributedValue);
@@ -101,20 +101,6 @@ jobs:
             const isPublic = repoDetails.data.private ? 'false' : 'true';
             console.log(`Is this a public repo? ${isPublic}`);
             core.setOutput('is_public', isPublic);
-
-  validate-outputs:
-    needs: get-repository-properties
-    name: Validate Outputs
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Validate Outputs
-        run: |
-          echo "Is Distributed: ${{ needs.get-repository-properties.outputs.is_distributed }}"
-          echo "Is Public: ${{ needs.get-repository-properties.outputs.is_public }}"
 
   submit-dependencies:
     needs: get-repository-properties
