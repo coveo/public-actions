@@ -90,8 +90,8 @@ jobs:
             });
             console.log(response.data);
 
-            const distributedProperty = response.data.find(prop => prop.property_name === 'Distributed');
-            const distributedValue = distributedProperty ? distributedProperty.value : 'false';
+            const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
+            const distributedValue = distributedProperty ? distributedProperty.value : 'true';
             core.setOutput('is_distributed', distributedValue);
 
             const repoDetails = await github.request('GET /repos/{owner}/{repo}', {
