@@ -22,7 +22,8 @@ on:
       jdk-version:
         description: |
           The JDK version to use for the build.
-        required: true
+        default: 21
+        required: false
         type: number
       mvn-additional-arguments:
         description: |
