@@ -88,7 +88,7 @@ jobs:
             core.setFailure(`Could not determine configuration for inputs: ${inputs}`)
 
       - name: Scan
-        uses: actions/dependency-review-action@v4.3.3
+        uses: actions/dependency-review-action@v4.5.0
         with:
           comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
           fail-on-severity: ${{ inputs.fail-on-severity }}
