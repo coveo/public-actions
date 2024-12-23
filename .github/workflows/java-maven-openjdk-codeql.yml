@@ -55,6 +55,8 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: java
+          queries: java
+          packs: githubsecuritylab/codeql-java-extensions,githubsecuritylab/codeql-java-queries,githubsecuritylab/codeql-java-library-sources
 
       - name: Cache maven dependencies
         uses: actions/cache@v4
