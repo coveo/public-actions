@@ -34,8 +34,7 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   submit-dependencies:
