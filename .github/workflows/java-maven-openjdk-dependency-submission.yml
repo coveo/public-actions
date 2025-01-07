@@ -34,6 +34,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   submit-dependencies:
     name: Submit dependencies
@@ -47,11 +50,16 @@ jobs:
       contents: write
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Cache maven dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -59,7 +67,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Submit Dependency Snapshot
-        uses: advanced-security/maven-dependency-submission-action@v4
+        uses: advanced-security/maven-dependency-submission-action@4f64ddab9d742a4806eeb588d238e4c311a8397d # v4.1.1
         with:
           directory: ${{ inputs.directory }}
           maven-args: ${{ inputs.mvn-additional-arguments }} -Dscopes=compile,provided,runtime,system

@@ -56,17 +56,22 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+
       - name: Checkout scan target
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Checkout licenses
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: coveo/dependency-allowed-licenses
           path: coveo-dependency-allowed-licenses
 
       - name: Get Properties
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         id: get-properties
         with:
           script: |
@@ -95,7 +100,7 @@ jobs:
 
       - name: Select configuration
         id: select-config
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           result-encoding: string
           script: |
@@ -115,7 +120,7 @@ jobs:
             core.setFailure(`Could not determine configuration for inputs: ${inputs}`)
 
       - name: Scan
-        uses: actions/dependency-review-action@v4.3.3
+        uses: actions/dependency-review-action@72eb03d02c7872a771aacd928f3123ac62ad6d3a # v4.3.3
         with:
           comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
           fail-on-severity: ${{ inputs.fail-on-severity }}
