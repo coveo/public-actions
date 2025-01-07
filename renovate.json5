@@ -6,4 +6,12 @@
     'group:allNonMajor',
   ],
   prHeader: 'DEF-160',
+  packageRules: [
+    {
+      matchPackageNames: [
+        'actions/dependency-review-action',
+      ],
+      allowedVersions: '<=v4.3.3',
+    },
+  ],
 }
