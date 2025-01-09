@@ -12,7 +12,7 @@ on:
 permissions: { }
 
 jobs:
-  analyze-java:
+  analyze-actions:
     name: Analyze Actions
 
     runs-on: ${{ fromJson(inputs.runs-on) }}
