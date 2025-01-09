@@ -1,0 +1,21 @@
+name: Test CodeQL for Actions
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  test:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    uses: ./.github/workflows/actions-codeql.yml
+    with:
+      runs-on: '["ubuntu-latest"]'
