@@ -6,7 +6,7 @@ on:
       runs-on:
         description: |
           The type of machine to run the job on. Must be provided as a stringified list (e.g. public repos should specify `runs-on: '["ubuntu-latest"]'`)
-        default: '["coveo", "arm64" , "linux", "eks"]'
+        default: '["coveo", "x64" , "linux", "eks"]'
         type: string
 
 permissions: { }
