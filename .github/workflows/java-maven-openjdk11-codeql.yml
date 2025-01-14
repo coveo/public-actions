@@ -12,6 +12,8 @@ on:
         required: false
         type: string
 
+permissions: { }
+
 jobs:
   analyze-java:
     uses: coveo/public-actions/.github/workflows/java-maven-openjdk-codeql.yml@main
@@ -19,3 +21,7 @@ jobs:
       runs-on: ${{ inputs.runs-on }}
       mvn-additional-arguments: ${{ inputs.mvn-arguments }}
       jdk-version: 11
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
