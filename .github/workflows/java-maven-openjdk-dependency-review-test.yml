@@ -1,0 +1,101 @@
+name: 'Maven Dependency Review'
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: |
+          The type of machine to run the job on. Must be provided as a stringified list (e.g. `runs-on: '["ubuntu-latest","self-hosted"]'`)
+        required: true
+        type: string
+
+      # Dependency Submission inputs
+      directory:
+        description: 'The directory that contains the pom.xml that will be used to generate the dependency graph from'
+        default: '.'
+        required: false
+        type: string
+      mvn-version:
+        description: |
+          The Maven version used for the execution. You can specify minor or patch version (3.9 or 3.9.1). Default : 3.9
+        required: false
+        type: number
+        default: 3.9
+      jdk-version:
+        description: |
+          The JDK version to use for the build.
+        default: 21
+        required: false
+        type: number
+      mvn-additional-arguments:
+        description: |
+          The additional arguments to pass to the Maven invocation. You can use this to specify a custom profile for example.
+
+          If you wish to exclude certain modules from the scan, pass: -Dexcludes=groupId:artifactId:type:classifier
+
+        required: false
+        type: string
+
+      # Dependency Reviewer inputs
+      comment-summary-in-pr:
+        description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
+        required: false
+        default: on-failure
+        type: string
+      base-ref:
+        description: Provide custom git references for the git base
+        required: false
+        default: ${{ github.event.pull_request.base.sha }}
+        type: string
+      head-ref:
+        description: Provide custom git references for the git head
+        required: false
+        default: ${{ github.event.pull_request.head.sha }}
+        type: string
+      fail-on-severity:
+        description: Defines the threshold for the level of severity. The action will fail on any pull requests that introduce vulnerabilities of the specified severity level or higher.
+        required: false
+        default: high
+        type: string
+      warn-on-openssf-scorecard-level:
+        description: Numeric threshold for the OpenSSF Scorecard score. If the score is below this threshold, the action will warn you.
+        required: false
+        type: number
+        default: 3
+
+permissions: {}
+
+jobs:
+  submit-dependencies:
+    name: Submit dependencies
+    uses: ./.github/workflows/java-maven-openjdk-dependency-submission.yml
+
+    permissions:
+      contents: write
+
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      directory: ${{ inputs.directory }}
+      mvn-version: ${{ inputs.mvn-version }}
+      jdk-version: ${{ inputs.jdk-version }}
+      mvn-additional-arguments: ${{ inputs.mvn-additional-arguments }}
+
+  dependency-review:
+    needs: submit-dependencies
+
+    name: Dependency Review
+    uses: ./.github/workflows/dependency-review-v3.yml
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
+      base-ref: ${{ inputs.base-ref }}
+      head-ref: ${{ inputs.head-ref }}
+      fail-on-severity: ${{ inputs.fail-on-severity }}
+      retry-on-snapshot-warnings: true
+      retry-on-snapshot-warnings-timeout: 120
+      warn-on-openssf-scorecard-level: ${{ inputs.warn-on-openssf-scorecard-level }}
