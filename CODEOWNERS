@@ -4,6 +4,7 @@ audit-renovate-config/** @coveo/dev-tooling @coveo/r-d-security-defence @coveo/c
 .github/workflows/actions-codeql.yml @coveo/r-d-security-defence
 .github/workflows/dependency-review.yml @coveo/r-d-security-defence
 .github/workflows/dependency-review-v2.yml @coveo/r-d-security-defence
+.github/workflows/dependency-review-v3.yml @coveo/r-d-security-defence
 .github/workflows/java-maven-openjdk-codeql.yml @coveo/r-d-security-defence
 .github/workflows/java-maven-openjdk-dependency-review.yml @coveo/r-d-security-defence
 .github/workflows/java-maven-openjdk-dependency-submission.yml @coveo/r-d-security-defence
