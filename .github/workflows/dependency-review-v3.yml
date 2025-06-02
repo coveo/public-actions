@@ -69,6 +69,7 @@ jobs:
         with:
           repository: coveo/dependency-allowed-licenses
           path: coveo-dependency-allowed-licenses
+          ref: 8269b01954c065535d91105857acd9e419467853
 
       - name: Get Properties
         uses: actions/github-script@v7.0.1
