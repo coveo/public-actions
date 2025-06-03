@@ -102,6 +102,7 @@ jobs:
         with:
           comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
           fail-on-severity: ${{ inputs.fail-on-severity }}
+          show-openssf-scorecard: false
           config-file: ./coveo-dependency-allowed-licenses/${{ steps.select-config.outputs.result }}
           base-ref: ${{ inputs.base-ref }}
           head-ref: ${{ inputs.head-ref }}

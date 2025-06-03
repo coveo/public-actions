@@ -93,6 +93,7 @@ jobs:
     with:
       runs-on: ${{ inputs.runs-on }}
       comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
+      show-openssf-scorecard: false
       base-ref: ${{ inputs.base-ref }}
       head-ref: ${{ inputs.head-ref }}
       fail-on-severity: ${{ inputs.fail-on-severity }}

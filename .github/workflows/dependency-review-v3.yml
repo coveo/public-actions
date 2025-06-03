@@ -123,6 +123,7 @@ jobs:
         uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
         with:
           comment-summary-in-pr: ${{ inputs.comment-summary-in-pr }}
+          show-openssf-scorecard: false
           fail-on-severity: ${{ inputs.fail-on-severity }}
           config-file: ./coveo-dependency-allowed-licenses/${{ steps.select-config.outputs.result }}
           base-ref: ${{ inputs.base-ref }}
