@@ -46,11 +46,9 @@ jobs:
     strategy:
       matrix:
         warn-on-openssf-scorecard-level: [ 5, 8 ]
-        comment-summary-in-pr: [ true, false ]
       fail-fast: false
 
     uses: ./.github/workflows/dependency-review-v3.yml
     with:
       warn-on-openssf-scorecard-level: ${{ matrix.warn-on-openssf-scorecard-level }}
-      comment-summary-in-pr: ${{ matrix.comment-summary-in-pr }}
       runs-on: '["ubuntu-latest"]'
