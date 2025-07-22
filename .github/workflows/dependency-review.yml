@@ -7,18 +7,15 @@ on:
         required: false
         type: boolean
         default: false
-        deprecationMessage: This input is now unused, you can remove it from your workflow since it's not infered from the repo directly
       distributed:
         required: false
         type: boolean
         default: true
-        deprecationMessage: This input is now unused, you can remove it from your workflow since it's not infered from the repo directly
       comment-summary-in-pr:
         description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
         required: false
         default: on-failure
         type: string
-        deprecationMessage: This input is now unused, it always comment in the PR if there's an issue
       base-ref:
         description: Provide custom git references for the git base
         required: false
