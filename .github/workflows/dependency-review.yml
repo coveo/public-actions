@@ -4,16 +4,15 @@ on:
   workflow_call:
     inputs:
       public:
-        required: false
+        required: false # This input is deprecated and not used but kept for backward compatibility
         type: boolean
         default: false
       distributed:
-        required: false
+        required: false # This input is deprecated and not used but kept for backward compatibility
         type: boolean
         default: true
       comment-summary-in-pr:
-        description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
-        required: false
+        required: false # This input is deprecated and not used but kept for backward compatibility
         default: on-failure
         type: string
       base-ref:
@@ -116,13 +115,13 @@ jobs:
             const isDistributed = ${{ steps.get-properties.outputs.is_distributed }} === 'true';
 
             if (isPublic) {
-              return 'public-v2.yml'
+              return 'public.yml'
             }
             if (!isPublic && isDistributed) {
-              return 'private-distributed-v2.yml'
+              return 'private-distributed.yml'
             }
             if (!isPublic && !isDistributed) {
-              return 'private-undistributed-v2.yml'
+              return 'private-undistributed.yml'
             }
 
             core.setFailure(`Could not determine configuration for inputs: ${inputs}`)
