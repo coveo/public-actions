@@ -1,0 +1,175 @@
+name: Coveo Dependency Reviewer
+
+on:
+  workflow_call:
+    inputs:
+      public:
+        required: true
+        type: boolean
+        default: false
+        deprecationMessage: This input is now unused, you can remove it from your workflow since it's not infered from the repo directly
+      distributed:
+        required: true
+        type: boolean
+        default: true
+        deprecationMessage: This input is now unused, you can remove it from your workflow since it's not infered from the repo directly
+      comment-summary-in-pr:
+        description: Determines if the summary is posted as a comment in the PR itself. Setting this to `always` or `on-failure` requires you to give the workflow the write permissions for pull-requests
+        required: false
+        default: on-failure
+        type: string
+        deprecationMessage: This input is now unused, it always comment in the PR if there's an issue
+      base-ref:
+        description: Provide custom git references for the git base
+        required: false
+        default: ${{ github.event.pull_request.base.sha }}
+        type: string
+      head-ref:
+        description: Provide custom git references for the git head
+        required: false
+        default: ${{ github.event.pull_request.head.sha }}
+        type: string
+      fail-on-severity:
+        description: Defines the threshold for the level of severity. The action will fail on any pull requests that introduce vulnerabilities of the specified severity level or higher.
+        required: false
+        default: high
+        type: string
+      runs-on:
+        description: |
+          The type of machine to run the job on. Must be provided as a stringified list (e.g. public repos should specify `runs-on: '["ubuntu-latest"]'`)
+        default: '["coveo", "arm64" , "linux", "eks"]'
+        type: string
+      retry-on-snapshot-warnings:
+        description: Whether to retry on snapshot warnings (to be used for projects where a dependency submission Action is used)
+        required: false
+        type: boolean
+        default: false
+      retry-on-snapshot-warnings-timeout:
+        description: Number of seconds to wait before stopping snapshot retries.
+        required: false
+        type: number
+        default: 120
+      warn-on-openssf-scorecard-level:
+        description: Numeric threshold for the OpenSSF Scorecard score. If the score is below this threshold, the action will warn you.
+        required: false
+        type: number
+        default: 3
+
+permissions: { }
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout scan target
+        uses: actions/checkout@v4.2.2
+
+      - name: Checkout licenses
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: coveo/dependency-allowed-licenses
+          path: coveo-dependency-allowed-licenses
+
+      - name: Get Properties
+        uses: actions/github-script@v7.0.1
+        id: get-properties
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const repoDetails = await github.request('GET /repos/' + owner + '/' + repo, {
+              owner: owner,
+              repo: repo
+            });
+            const isPublic = !repoDetails.data.private;
+            console.log(`Is this a public repo? ${isPublic}`);
+            core.setOutput('is_public', isPublic);
+
+            let distributedValue = isPublic;
+            if (!isPublic) {
+              const response = await github.request('GET /repos/' + owner + '/' + repo + '/properties/values', {
+                owner: owner,
+                repo: repo
+              });
+              console.log('Repository properties: ' + JSON.stringify(response.data, null, 2));
+              const distributedProperty = response.data.find(prop => prop.property_name === 'is_distributed');
+              distributedValue = distributedProperty ? distributedProperty.value === 'true' : true;
+            }
+            core.setOutput('is_distributed', distributedValue);
+
+      - name: Select configuration
+        id: select-config
+        uses: actions/github-script@v7.0.1
+        with:
+          result-encoding: string
+          script: |
+            const isPublic = ${{ steps.get-properties.outputs.is_public }} === 'true';
+            const isDistributed = ${{ steps.get-properties.outputs.is_distributed }} === 'true';
+
+            if (isPublic) {
+              return 'public-v2.yml'
+            }
+            if (!isPublic && isDistributed) {
+              return 'private-distributed-v2.yml'
+            }
+            if (!isPublic && !isDistributed) {
+              return 'private-undistributed-v2.yml'
+            }
+
+            core.setFailure(`Could not determine configuration for inputs: ${inputs}`)
+
+      - name: Check for existing dependency-review comment
+        id: check-comment
+        uses: actions/github-script@v7.0.1
+        with:
+          result-encoding: string
+          script: |
+            if (!context.payload.pull_request) {
+              return 'on-failure';
+            }
+
+            const prNumber = context.payload.pull_request.number;
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                per_page: 100,
+              }
+            );
+            // Look for a comment generated by the dependency-review-action
+            const found = comments.find(
+                (comment) =>
+                    comment.body &&
+                    comment.body.includes('Dependency Review') &&
+                    comment.user &&
+                    comment.user.login === 'github-actions[bot]',
+            );
+
+            core.setOutput('comment_summary_in_pr', found ? 'always' : 'on-failure');              
+
+      - name: Scan
+        uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
+        with:
+          comment-summary-in-pr: ${{ steps.check-comment.outputs.comment_summary_in_pr }}
+          show-openssf-scorecard: false #Workaround for https://github.com/actions/dependency-review-action/issues/867
+          fail-on-severity: ${{ inputs.fail-on-severity }}
+          config-file: ./coveo-dependency-allowed-licenses/${{ steps.select-config.outputs.result }}
+          base-ref: ${{ inputs.base-ref }}
+          head-ref: ${{ inputs.head-ref }}
+          retry-on-snapshot-warnings: ${{ inputs.retry-on-snapshot-warnings }}
+          retry-on-snapshot-warnings-timeout: ${{ inputs.retry-on-snapshot-warnings-timeout }}
+          warn-on-openssf-scorecard-level: ${{ inputs.warn-on-openssf-scorecard-level }}
