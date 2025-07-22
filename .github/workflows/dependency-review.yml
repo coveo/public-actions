@@ -4,15 +4,15 @@ on:
   workflow_call:
     inputs:
       public:
-        required: false #This input is deprecated and not used but kept for backward compatibility
+        required: false # This input is deprecated and not used but kept for backward compatibility
         type: boolean
         default: false
       distributed:
-        required: false #This input is deprecated and not used but kept for backward compatibility
+        required: false # This input is deprecated and not used but kept for backward compatibility
         type: boolean
         default: true
       comment-summary-in-pr:
-        required: false #This input is deprecated and not used but kept for backward compatibility
+        required: false # This input is deprecated and not used but kept for backward compatibility
         default: on-failure
         type: string
       base-ref:
