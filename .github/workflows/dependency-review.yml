@@ -78,7 +78,7 @@ jobs:
           path: coveo-dependency-allowed-licenses
 
       - name: Get Properties
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v7.1.0
         id: get-properties
         with:
           script: |
@@ -107,7 +107,7 @@ jobs:
 
       - name: Select configuration
         id: select-config
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v7.1.0
         with:
           result-encoding: string
           script: |
@@ -128,7 +128,7 @@ jobs:
 
       - name: Check for existing dependency-review comment
         id: check-comment
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v7.1.0
         with:
           result-encoding: string
           script: |
