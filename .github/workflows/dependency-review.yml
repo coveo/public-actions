@@ -69,10 +69,10 @@ jobs:
           egress-policy: audit
 
       - name: Checkout scan target
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
 
       - name: Checkout licenses
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: coveo/dependency-allowed-licenses
           path: coveo-dependency-allowed-licenses
